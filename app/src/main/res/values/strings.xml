@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">morse</string>
+    <string name="footer_made_by">made by defxult</string>
+
+    <!-- Idle screen -->
+    <string name="start_server">Start Server</string>
+    <string name="idle_hint">Make sure WiFi or hotspot is on before starting.</string>
+
+    <!-- Running screen -->
+    <string name="checking">Checking…</string>
+    <string name="running_on_port">Running on port %1$d</string>
+    <string name="url_label">Open on your computer:</string>
+    <string name="copy_url">Copy URL</string>
+    <string name="open_browser">Open in browser</string>
+    <string name="stop_server">Stop Server</string>
+    <string name="running_hint">Other devices must be on the same WiFi.</string>
+
+    <!-- No-network dialog -->
+    <string name="no_network_title">No network detected</string>
+    <string name="no_network_msg">Turn on WiFi or hotspot to continue.\n\nThe server cannot start without a network connection.</string>
+
+    <!-- Storage permission dialog -->
+    <string name="storage_needed_title">File access required</string>
+    <string name="storage_needed_msg">morse needs to read your files to share them over WiFi.\n\nOn the next screen, enable \u201cAllow management of all files\u201d for morse, then come back.</string>
+
+    <!-- Generic -->
+    <string name="open_settings">Open settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="quit">Quit</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">Server status</string>
+    <string name="notif_channel_desc">Keeps the file server running in the background</string>
+    <string name="notif_title">morse is running</string>
+    <string name="notif_text">Serving on port %1$d</string>
+
+    <!-- Settings: sections -->
+    <string name="settings_title">Settings</string>
+    <string name="section_appearance">Appearance</string>
+    <string name="section_server">Server</string>
+    <string name="section_customization">Customization</string>
+    <string name="section_about">About</string>
+
+    <!-- Settings: theme -->
+    <string name="theme_label">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
+    <!-- Settings: accent -->
+    <string name="accent_label">Accent color</string>
+
+    <!-- Settings: port -->
+    <string name="port_label">Port</string>
+    <string name="port_hint">1024\u201365535. Applies on next start.</string>
+    <string name="port_locked">Stop the server to change this.</string>
+    <string name="port_invalid">Port must be between %1$d and %2$d.</string>
+
+    <!-- Settings: upload destination -->
+    <string name="upload_dest_label">Upload destination</string>
+    <string name="upload_dest_sub">Where drag-and-drop files from your PC are saved. The web UI\u2019s folder picker always uses the folder you pick there.</string>
+    <string name="upload_dest_unset">Not set (use current folder)</string>
+
+    <!-- Settings: media -->
+    <string name="wallpaper_label">Set wallpaper</string>
+    <string name="wallpaper_sub">Shown as the background of the web UI.</string>
+    <string name="wallpaper_button">Choose image</string>
+    <string name="music_label">Set background music</string>
+    <string name="music_sub">Plays from the web UI\u2019s audio bar.</string>
+    <string name="music_button">Choose audio</string>
+
+    <!-- Settings: about -->
+    <string name="about_version">Version %1$s</string>
+    <string name="about_by">made by defxult</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_back">Back</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_qr">QR code for connection URL</string>
+</resources>

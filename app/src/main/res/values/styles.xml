@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Section header in Settings -->
+    <style name="TextAppearance.Morse.SectionHeader" parent="android:TextAppearance">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_muted</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Footer "made by defxult" -->
+    <style name="TextAppearance.Morse.Footer" parent="android:TextAppearance">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/text_dim</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <!-- Row labels in Settings -->
+    <style name="TextAppearance.Morse.RowLabel" parent="android:TextAppearance">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/text</item>
+    </style>
+
+    <style name="TextAppearance.Morse.RowSub" parent="android:TextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_muted</item>
+    </style>
+
+</resources>

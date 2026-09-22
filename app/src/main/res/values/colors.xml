@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light theme surfaces -->
+    <color name="bg">#eef1f8</color>
+    <color name="surface">#ffffff</color>
+    <color name="surface_alt">#f4f6fb</color>
+    <color name="border">#1a0f1428</color>
+    <color name="text">#101014</color>
+    <color name="text_muted">#5a5c68</color>
+    <color name="text_dim">#8a8c98</color>
+
+    <!-- Fixed accents for specific elements -->
+    <color name="danger">#ff3b30</color>
+    <color name="success">#34c759</color>
+    <color name="qr_bg">#ffffff</color>
+</resources>

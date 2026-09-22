@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme surfaces -->
+    <color name="bg">#0a0b12</color>
+    <color name="surface">#12141f</color>
+    <color name="surface_alt">#1e2233</color>
+    <color name="border">#12ffffff</color>
+    <color name="text">#f5f5f7</color>
+    <color name="text_muted">#8e8e9c</color>
+    <color name="text_dim">#6b6b7a</color>
+
+    <color name="danger">#ff453a</color>
+    <color name="success">#30d158</color>
+    <color name="qr_bg">#ffffff</color>
+</resources>
