@@ -34,19 +34,10 @@ jobs:
           gradle-version: '8.5'
 
       - name: Build debug APK
-  run: |
-    set +e
-    gradle assembleDebug --no-daemon 2>&1 | tee build.log
-    ec=${PIPESTATUS[0]}
-    echo ""
-    echo "==================== ERRORS ===================="
-    grep -n -B 1 -A 4 "error:" build.log | head -100
-    echo "==================== FAILED TASK ===================="
-    grep -n "FAILED" build.log | head -20
-    echo "==================== END ===================="
-    exit $ec
+        run: gradle assembleDebug --no-daemon
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: morse-debug-apk
