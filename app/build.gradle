@@ -41,7 +41,6 @@ android {
 
 chaquopy {
     defaultConfig {
-        version "15.0.1"
         pip {
             install "qrcode"
             install "pillow"
