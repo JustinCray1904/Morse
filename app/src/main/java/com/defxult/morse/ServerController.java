@@ -81,6 +81,19 @@ public final class ServerController {
             File nodeModules = new File(filesDir, "node_modules");
             File rootDir = Environment.getExternalStorageDirectory();
 
+            // Diagnostics: what does Java see?
+            Log.i(TAG, "Java sees root: path=" + rootDir.getAbsolutePath()
+                    + " exists=" + rootDir.exists()
+                    + " isDir=" + rootDir.isDirectory()
+                    + " canRead=" + rootDir.canRead());
+            try {
+                String[] probe = rootDir.list();
+                Log.i(TAG, "Java list() returned "
+                        + (probe == null ? "null" : (probe.length + " entries")));
+            } catch (Exception pe) {
+                Log.e(TAG, "Java list() threw", pe);
+            }
+
             int wantedPort = Prefs.getPort(ctx);
             String uploadDest = Prefs.getUploadDest(ctx);
 

@@ -4185,10 +4185,18 @@ def start_server(preferred_port=DEFAULT_PORT):
 
     try:
         os.listdir(ROOT_DIR)
-    except PermissionError:
+    except PermissionError as e:
+        import stat as _st
+        try:
+            _s = os.stat(ROOT_DIR)
+            _mode = _st.filemode(_s.st_mode)
+            _uid = _s.st_uid
+        except Exception as _e2:
+            _mode = f"stat failed: {_e2}"
+            _uid = "?"
         raise RuntimeError(
-            "Storage permission not active for this process yet. "
-            "Close and reopen the app."
+            f"perm denied. path={ROOT_DIR!r} exists={os.path.exists(ROOT_DIR)} "
+            f"mode={_mode} owner_uid={_uid} running_uid={os.getuid()} err={e}"
         )
 
     cleanup_old_uploads()
