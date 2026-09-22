@@ -75,7 +75,14 @@ public class ServerService extends Service {
         }
 
         int port = (intent != null) ? intent.getIntExtra(EXTRA_PORT, 8080) : 8080;
-        startForeground(NOTIF_ID, buildNotification(port));
+        try {
+            startForeground(NOTIF_ID, buildNotification(port));
+            android.util.Log.i(TAG, "foreground service started on port " + port);
+        } catch (Exception e) {
+            android.util.Log.e(TAG, "startForeground failed", e);
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         return START_STICKY;
     }
 

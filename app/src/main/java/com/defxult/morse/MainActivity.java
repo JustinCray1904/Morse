@@ -257,7 +257,13 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 currentUrl = sr.url;
-                ServerService.start(MainActivity.this, sr.port);
+                try {
+                    ServerService.start(MainActivity.this, sr.port);
+                    Log.i(TAG, "foreground service start requested");
+                } catch (Exception fgs) {
+                    Log.e(TAG, "FGS start failed", fgs);
+                    toast("Background service failed: " + fgs.getMessage());
+                }
                 running = true;
                 applyAccent();
                 showRunning();
