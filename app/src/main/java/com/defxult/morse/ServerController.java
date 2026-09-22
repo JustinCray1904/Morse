@@ -92,6 +92,11 @@ public final class ServerController {
             environ.callAttr("__setitem__", "DEFXULT_NODE_MODULES", nodeModules.getAbsolutePath());
             environ.callAttr("__setitem__", "DEFXULT_UPLOAD_DEST", uploadDest);
 
+            String forcedIp = NetworkCheck.findUsableIp();
+            if (forcedIp != null) {
+                environ.callAttr("__setitem__", "DEFXULT_FORCED_IP", forcedIp);
+            }
+
             // Force a re-import so module-level os.environ reads pick up the
             // new values. Chaquopy caches imported modules.
             try {

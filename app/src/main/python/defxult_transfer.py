@@ -226,6 +226,9 @@ def format_size(size):
 
 
 def get_local_ip():
+    forced = (os.environ.get("DEFXULT_FORCED_IP") or "").strip()
+    if forced:
+        return forced
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(("8.8.8.8", 80))
