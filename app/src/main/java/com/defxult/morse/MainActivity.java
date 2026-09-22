@@ -356,6 +356,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        UiKit.toast(this, msg);
     }
 }
