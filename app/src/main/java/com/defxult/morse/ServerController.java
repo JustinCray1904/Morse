@@ -86,7 +86,7 @@ public final class ServerController {
 
             Python py = Python.getInstance();
             PyObject osMod = py.getModule("os");
-            PyObject environ = osMod.getAttr("environ");
+            PyObject environ = osMod.get("environ");
             environ.callAttr("__setitem__", "DEFXULT_ROOT", rootDir.getAbsolutePath());
             environ.callAttr("__setitem__", "DEFXULT_HOME", filesDir.getAbsolutePath());
             environ.callAttr("__setitem__", "DEFXULT_NODE_MODULES", nodeModules.getAbsolutePath());
@@ -96,7 +96,7 @@ public final class ServerController {
             // new values. Chaquopy caches imported modules.
             try {
                 PyObject sys = py.getModule("sys");
-                PyObject modules = sys.getAttr("modules");
+                PyObject modules = sys.get("modules");
                 modules.callAttr("__delitem__", "defxult_transfer");
             } catch (Exception ignored) {
                 // Not previously imported — nothing to drop.
