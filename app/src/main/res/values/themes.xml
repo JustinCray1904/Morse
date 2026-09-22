@@ -12,4 +12,11 @@
         <item name="colorAccent">#64d2ff</item>
     </style>
 
+
+    <style name="Theme.Morse.Splash" parent="Theme.Morse">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 </resources>

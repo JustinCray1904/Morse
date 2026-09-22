@@ -1,28 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="@drawable/toast_background"
+    android:background="@drawable/glass_toast_bg"
     android:paddingStart="16dp"
-    android:paddingEnd="20dp"
-    android:paddingTop="14dp"
-    android:paddingBottom="14dp"
-    android:elevation="8dp"
-    android:maxWidth="340dp">
+    android:paddingEnd="6dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:elevation="10dp">
 
     <View
-        android:layout_width="7dp"
-        android:layout_height="7dp"
-        android:layout_marginEnd="12dp"
-        android:background="@drawable/toast_dot" />
+        android:id="@+id/toastDot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_marginEnd="12dp" />
 
     <TextView
         android:id="@+id/toastText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:textColor="#F5F5F7"
         android:textSize="14sp"
-        android:lineSpacingMultiplier="1.15" />
+        android:lineSpacingMultiplier="1.2" />
+
+    <ImageButton
+        android:id="@+id/toastClose"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="6dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:tint="#8E8E9C"
+        android:contentDescription="Dismiss"
+        android:scaleType="centerInside" />
 </LinearLayout>
