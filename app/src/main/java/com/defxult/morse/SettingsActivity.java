@@ -59,7 +59,10 @@ public class SettingsActivity extends AppCompatActivity {
         uploadDestValue = findViewById(R.id.uploadDestValue);
         btnBack = findViewById(R.id.btnBack);
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            commitPort();
+            finish();
+        });
 
         setupTheme();
         setupAccent();
@@ -153,8 +156,13 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        commitPort();
+        super.onPause();
+    }
+
+    @Override
     public void onBackPressed() {
-        // Commit port before leaving, in case the field still had focus.
         commitPort();
         super.onBackPressed();
     }

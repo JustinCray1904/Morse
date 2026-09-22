@@ -4183,6 +4183,14 @@ def start_server(preferred_port=DEFAULT_PORT):
     if not os.path.isdir(ROOT_DIR):
         raise RuntimeError(f"{ROOT_DIR} does not exist")
 
+    try:
+        os.listdir(ROOT_DIR)
+    except PermissionError:
+        raise RuntimeError(
+            "Storage permission not active for this process yet. "
+            "Close and reopen the app."
+        )
+
     cleanup_old_uploads()
     cleanup_transcode_cache()
 

@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final ExecutorService bg = Executors.newSingleThreadExecutor();
     private boolean running = false;
+    private boolean awaitingReturn = false;
     private String currentUrl;
 
     @Override
@@ -58,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
         bindViews();
         wireListeners();
+
+        if (!hasStoragePermission()) {
+            if (statusText != null) statusText.setText("Waiting for file access\u2026");
+            askForStorage();
+            return;
+        }
 
         // Start CPython on a background thread. It's slow the first time.
         bg.execute(() -> {
@@ -78,10 +85,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (awaitingReturn) {
+            awaitingReturn = false;
+            if (hasStoragePermission()) {
+                restartApp();
+                return;
+            }
+        }
         if (Python.isStarted()) {
             applyAccent();
             refreshState();
         }
+    }
+
+    private void restartApp() {
+        try {
+            android.app.AlarmManager am =
+                    (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            int piFlags = PendingIntent.FLAG_CANCEL_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) piFlags |= PendingIntent.FLAG_IMMUTABLE;
+            PendingIntent pi = PendingIntent.getActivity(this, 0, intent, piFlags);
+            if (am != null) {
+                am.set(android.app.AlarmManager.RTC, System.currentTimeMillis() + 200, pi);
+            }
+        } catch (Exception ignored) {}
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(0);
     }
 
     @Override
@@ -269,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(R.string.storage_needed_msg)
                 .setCancelable(false)
                 .setPositiveButton(R.string.open_settings, (d, w) -> {
+                    awaitingReturn = true;
                     Intent i;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
