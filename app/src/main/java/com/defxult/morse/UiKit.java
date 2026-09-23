@@ -123,4 +123,26 @@ public final class UiKit {
         dialog.show();
         return dialog;
     }
+
+    // ==================== Press animation ====================
+
+    public static void attachPressScale(android.view.View v) {
+        if (v == null) return;
+        v.setOnTouchListener((view, event) -> {
+            switch (event.getActionMasked()) {
+                case android.view.MotionEvent.ACTION_DOWN:
+                    view.animate().scaleX(0.96f).scaleY(0.96f)
+                            .setDuration(90).start();
+                    break;
+                case android.view.MotionEvent.ACTION_UP:
+                case android.view.MotionEvent.ACTION_CANCEL:
+                    view.animate().scaleX(1f).scaleY(1f)
+                            .setDuration(160)
+                            .setInterpolator(new android.view.animation.OvershootInterpolator(2.2f))
+                            .start();
+                    break;
+            }
+            return false;
+        });
+    }
 }

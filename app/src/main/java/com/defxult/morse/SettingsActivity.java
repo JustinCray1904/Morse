@@ -128,9 +128,14 @@ public class SettingsActivity extends AppCompatActivity {
             default:                mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM; break;
         }
         AppCompatDelegate.setDefaultNightMode(mode);
-        // Recreate with a fade so the switch feels smooth instead of jarring.
-        recreate();
+
+        // recreate() ignores overridePendingTransition. Start a fresh instance
+        // with a fade, then finish this one so the transition is visible.
+        Intent restart = getIntent();
+        restart.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        startActivity(restart);
         overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out);
+        finish();
     }
 
     // ==================== ACCENT ====================
