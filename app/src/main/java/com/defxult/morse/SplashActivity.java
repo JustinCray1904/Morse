@@ -1,7 +1,6 @@
 package com.defxult.morse;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,10 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final long REVEAL_MS = 480;
-    private static final long BOUNCE_MS = 620;
-    private static final long HOLD_MS = 420;
-    private static final long EXIT_MS = 380;
+    private static final long REVEAL_MS = 460;
+    private static final long BOUNCE_MS = 600;
+    private static final long HOLD_MS = 380;
+    private static final long EXIT_MS = 360;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,19 +27,12 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         final View reveal = findViewById(R.id.splashReveal);
-        final View content = findViewById(R.id.splashContent);
         final View mark = findViewById(R.id.splashMark);
-        final View text = findViewById(R.id.splashText);
 
-        // Prepare mark + text for rubber bounce-in.
         mark.setAlpha(0f);
-        mark.setScaleX(0.35f);
-        mark.setScaleY(0.35f);
+        mark.setScaleX(0.4f);
+        mark.setScaleY(0.4f);
 
-        text.setAlpha(0f);
-        text.setTranslationY(20f);
-
-        // Wait for layout to measure before animating.
         reveal.post(() -> {
             int cx = reveal.getWidth() / 2;
             int cy = reveal.getHeight() / 2;
@@ -56,29 +48,19 @@ public class SplashActivity extends AppCompatActivity {
             reveal.setVisibility(View.VISIBLE);
             circle.start();
 
-            // Bounce the mark in as the reveal finishes.
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 mark.animate()
                         .alpha(1f)
                         .scaleX(1f).scaleY(1f)
                         .setDuration(BOUNCE_MS)
-                        .setInterpolator(new OvershootInterpolator(1.6f))
+                        .setInterpolator(new OvershootInterpolator(1.5f))
                         .start();
+            }, REVEAL_MS - 100);
 
-                text.animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setDuration(BOUNCE_MS)
-                        .setStartDelay(140)
-                        .setInterpolator(new OvershootInterpolator(1.3f))
-                        .start();
-            }, REVEAL_MS - 120);
-
-            // Hold, then slide everything up and hand off.
             long exitAt = REVEAL_MS + BOUNCE_MS + HOLD_MS;
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                float dy = -content.getHeight() * 1.6f - reveal.getHeight() * 0.25f;
-                content.animate()
+                float dy = -reveal.getHeight() * 1.1f;
+                mark.animate()
                         .translationY(dy)
                         .alpha(0f)
                         .setDuration(EXIT_MS)
@@ -103,6 +85,6 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Swallow — splash is transient.
+        // swallow — splash is transient
     }
 }

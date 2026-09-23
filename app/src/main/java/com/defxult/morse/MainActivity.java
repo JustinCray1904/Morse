@@ -54,12 +54,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ThemeManager.applyNightMode(this);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        try {
+            ThemeManager.applyNightMode(this);
+            super.onCreate(savedInstanceState);
+        } catch (Throwable t) {
+            crash("onCreate early", t);
+            return;
+        }
+        try {
+            setContentView(R.layout.activity_main);
 
-        bindViews();
-        wireListeners();
+            bindViews();
+            wireListeners();
 
         if (!hasStoragePermission()) {
             if (statusText != null) statusText.setText("Waiting for file access\u2026");
@@ -68,19 +74,38 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Start CPython on a background thread. It's slow the first time.
-        bg.execute(() -> {
-            try {
-                if (!Python.isStarted()) {
-                    Python.start(new AndroidPlatform(getApplicationContext()));
+            bg.execute(() -> {
+                try {
+                    if (!Python.isStarted()) {
+                        Python.start(new AndroidPlatform(getApplicationContext()));
+                    }
+                } catch (Throwable e) {
+                    Log.e(TAG, "Python.start failed", e);
+                    crash("Python.start", e);
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "Python.start failed", e);
-            }
-            runOnUiThread(() -> {
-                maybeAskNotifications();
-                refreshState();
+                runOnUiThread(() -> {
+                    try {
+                        maybeAskNotifications();
+                        refreshState();
+                    } catch (Throwable t) {
+                        crash("refreshState", t);
+                    }
+                });
             });
-        });
+        } catch (Throwable t) {
+            crash("onCreate body", t);
+        }
+    }
+
+    private void crash(String where, Throwable t) {
+        try {
+            Log.e(TAG, "crash at " + where, t);
+            String msg = where + ": " + (t.getMessage() == null
+                    ? t.getClass().getSimpleName()
+                    : t.getMessage());
+            android.widget.Toast.makeText(getApplicationContext(),
+                    msg, android.widget.Toast.LENGTH_LONG).show();
+        } catch (Throwable ignored) {}
     }
 
     @Override
