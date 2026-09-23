@@ -196,13 +196,6 @@ public class MainActivity extends AppCompatActivity {
         runningView.setVisibility(View.GONE);
         btnStart.setEnabled(true);
         btnStart.setText(R.string.start_server);
-        animateIn(idleView);
-    }
-
-    private void animateIn(View v) {
-        v.setAlpha(0f);
-        v.setTranslationY(24f * getResources().getDisplayMetrics().density);
-        v.animate().alpha(1f).translationY(0f).setDuration(360).start();
     }
 
     private void showRunning() {
@@ -211,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         statusText.setText(getString(R.string.running_on_port, ServerController.getBoundPort()));
         urlText.setText(currentUrl == null ? "" : currentUrl);
         renderQr(currentUrl);
-        animateIn(runningView);
     }
 
     private void renderQr(String url) {
@@ -251,9 +243,6 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     btnStart.setEnabled(true);
                     btnStart.setText(R.string.start_server);
-                    UiKit.toast(MainActivity.this,
-                            getString(R.string.toast_conn_failed),
-                            UiKit.TYPE_ERROR);
                     showNoNetworkDialog();
                 });
                 return;
@@ -273,22 +262,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "foreground service start requested");
                 } catch (Exception fgs) {
                     Log.e(TAG, "FGS start failed", fgs);
-                    UiKit.toast(MainActivity.this,
-                            "Background service failed: " + fgs.getMessage(),
-                            UiKit.TYPE_ERROR);
+                    toast("Background service failed: " + fgs.getMessage());
                 }
                 running = true;
                 applyAccent();
                 showRunning();
-                String shortIp = "";
-                if (sr.url != null) {
-                    int s1 = sr.url.indexOf("//");
-                    int s2 = sr.url.indexOf(":", s1 + 2);
-                    if (s1 >= 0 && s2 > s1) shortIp = sr.url.substring(s1 + 2, s2);
-                }
-                UiKit.toast(MainActivity.this,
-                        getString(R.string.toast_connected, shortIp),
-                        UiKit.TYPE_SUCCESS);
             });
         });
     }
@@ -301,9 +279,6 @@ public class MainActivity extends AppCompatActivity {
                 running = false;
                 currentUrl = null;
                 showIdle();
-                UiKit.toast(MainActivity.this,
-                        getString(R.string.toast_server_stopped),
-                        UiKit.TYPE_INFO);
             });
         });
     }

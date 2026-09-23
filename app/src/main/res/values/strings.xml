@@ -22,11 +22,7 @@
 
     <!-- Storage permission dialog -->
     <string name="storage_needed_title">File access required</string>
-    <string name="storage_needed_msg">morse needs to read your files to share them over WiFi.\n\nTap \u201cAllow\u201d on the next screen.</string>
-    <string name="toast_connected">Connected \u00b7 %1$s</string>
-    <string name="toast_conn_failed">Connection failed \u00b7 no network detected</string>
-    <string name="toast_server_stopped">Server stopped</string>
-    <string name="toast_server_starting">Starting server\u2026</string>
+    <string name="storage_needed_msg">morse needs to read your files to share them over WiFi.\n\nOn the next screen, enable \u201cAllow management of all files\u201d for morse, then come back.</string>
 
     <!-- Generic -->
     <string name="open_settings">Open settings</string>

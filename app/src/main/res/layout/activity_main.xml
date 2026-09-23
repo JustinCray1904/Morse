@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/bg">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
 
     <!-- Top bar: brand + settings -->
     <LinearLayout
@@ -18,11 +14,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="8dp"
         android:paddingTop="12dp"
-        android:paddingBottom="8dp"
-        android:background="@drawable/glass_surface"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="8dp">
+        android:paddingBottom="8dp">
 
         <TextView
             android:layout_width="0dp"
@@ -250,16 +242,4 @@
         android:gravity="center"
         android:text="@string/footer_made_by"
         android:textAppearance="@style/TextAppearance.Morse.Footer" />
-    </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/toastHost"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="24dp"
-        android:clipChildren="false"
-        android:clipToPadding="false" />
-</FrameLayout>
+</LinearLayout>
