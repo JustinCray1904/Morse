@@ -6,39 +6,31 @@ import android.content.res.Configuration;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * Every activity extends this. attachBaseContext runs before onCreate and
- * before any view is inflated, so forcing the uiMode here guarantees the
- * whole activity — every layout, every color — is inflated with the theme
- * the user picked, regardless of what AppCompatDelegate happens to think.
+ * attachBaseContext runs before onCreate and before any layout is inflated.
+ * Overriding the Configuration's night mode here guarantees the entire
+ * activity — every @color, every drawable — resolves against the theme the
+ * user actually picked, on cold start AND after a recreate().
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
-    protected void attachBaseContext(Context newBase) {
-        Configuration config =
-                new Configuration(newBase.getResources().getConfiguration());
+    protected void attachBaseContext(Context base) {
+        Configuration cfg = new Configuration(base.getResources().getConfiguration());
+        String theme = Prefs.getTheme(base);
 
-        String theme = Prefs.getTheme(newBase);
-        int nightBit;
-        switch (theme) {
-            case Prefs.THEME_LIGHT:
-                nightBit = Configuration.UI_MODE_NIGHT_NO;
-                break;
-            case Prefs.THEME_DARK:
-                nightBit = Configuration.UI_MODE_NIGHT_YES;
-                break;
-            default: {
-                // Follow system: keep whatever the phone reports.
-                int sys = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                nightBit = (sys == Configuration.UI_MODE_NIGHT_YES)
-                        ? Configuration.UI_MODE_NIGHT_YES
-                        : Configuration.UI_MODE_NIGHT_NO;
-                break;
-            }
+        int want;
+        if (Prefs.THEME_LIGHT.equals(theme)) {
+            want = Configuration.UI_MODE_NIGHT_NO;
+        } else if (Prefs.THEME_DARK.equals(theme)) {
+            want = Configuration.UI_MODE_NIGHT_YES;
+        } else {
+            int sys = cfg.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            want = (sys == Configuration.UI_MODE_NIGHT_YES)
+                    ? Configuration.UI_MODE_NIGHT_YES
+                    : Configuration.UI_MODE_NIGHT_NO;
         }
-        config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | nightBit;
+        cfg.uiMode = (cfg.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | want;
 
-        Context wrapped = newBase.createConfigurationContext(config);
-        super.attachBaseContext(wrapped);
+        super.attachBaseContext(base.createConfigurationContext(cfg));
     }
 }

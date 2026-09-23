@@ -48,9 +48,11 @@ public class SettingsActivity extends BaseActivity {
     private String selectedAccent;
     private int currentAccentColor;
     private boolean suppressThemeListener = false;
+    private String mThemeAtCreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mThemeAtCreate = Prefs.getTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -113,13 +115,20 @@ public class SettingsActivity extends BaseActivity {
 
             if (next.equals(Prefs.getTheme(SettingsActivity.this))) return;
 
-            // Prefs.setTheme bumps a generation counter.
             Prefs.setTheme(SettingsActivity.this, next);
+            mThemeAtCreate = next;
 
-            // Give the delegate a hint, then rebuild ourselves with fade.
-            // BaseActivity.attachBaseContext will read the new Prefs value
-            // and inflate with the correct Configuration.
-            applyNightModeInstant(next);
+            // Set the delegate (so future cold starts agree) and rebuild
+            // this activity in place with a fade.
+            int mode;
+            if (Prefs.THEME_LIGHT.equals(next)) mode = AppCompatDelegate.MODE_NIGHT_NO;
+            else if (Prefs.THEME_DARK.equals(next)) mode = AppCompatDelegate.MODE_NIGHT_YES;
+            else mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+            AppCompatDelegate.setDefaultNightMode(mode);
+
+            recreate();
+            overridePendingTransition(R.anim.activity_fade_in,
+                                      R.anim.activity_fade_out);
         });
     }
 
@@ -213,11 +222,14 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (seenThemeGenInResume < 0) {
-            seenThemeGenInResume = Prefs.getThemeGeneration(this);
-        } else if (Prefs.getThemeGeneration(this) != seenThemeGenInResume) {
-            seenThemeGenInResume = Prefs.getThemeGeneration(this);
-            recreateWithFade();
+        String now = Prefs.getTheme(this);
+        if (mThemeAtCreate == null) {
+            mThemeAtCreate = now;
+        } else if (!now.equals(mThemeAtCreate)) {
+            mThemeAtCreate = now;
+            recreate();
+            overridePendingTransition(R.anim.activity_fade_in,
+                                      R.anim.activity_fade_out);
             return;
         }
         applyAccentInstant();
