@@ -24,15 +24,22 @@
         android:theme="@style/Theme.Morse">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true"
-            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/Theme.Morse.Splash"
             android:configChanges="orientation|screenSize|keyboardHidden|uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|keyboardHidden|uiMode" />
 
         <activity
             android:name=".SettingsActivity"
