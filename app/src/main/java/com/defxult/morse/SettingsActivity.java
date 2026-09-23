@@ -1,5 +1,6 @@
 package com.defxult.morse;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -116,19 +117,14 @@ public class SettingsActivity extends BaseActivity {
             if (next.equals(Prefs.getTheme(SettingsActivity.this))) return;
 
             Prefs.setTheme(SettingsActivity.this, next);
-            mThemeAtCreate = next;
 
-            // Set the delegate (so future cold starts agree) and rebuild
-            // this activity in place with a fade.
             int mode;
             if (Prefs.THEME_LIGHT.equals(next)) mode = AppCompatDelegate.MODE_NIGHT_NO;
             else if (Prefs.THEME_DARK.equals(next)) mode = AppCompatDelegate.MODE_NIGHT_YES;
             else mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
             AppCompatDelegate.setDefaultNightMode(mode);
 
-            recreate();
-            overridePendingTransition(R.anim.activity_fade_in,
-                                      R.anim.activity_fade_out);
+            restartAppFully();
         });
     }
 
@@ -389,5 +385,33 @@ public class SettingsActivity extends BaseActivity {
 
     private void toast(String msg) {
         UiKit.toast(this, msg);
+    }
+
+    /**
+     * Restart the entire app. Guarantees every activity — including ones
+     * sitting in the back stack — rebuilds from scratch and picks up the
+     * new theme via BaseActivity.attachBaseContext.
+     */
+    private void restartAppFully() {
+        Intent i = new Intent(this, SplashActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        int piFlags = PendingIntent.FLAG_CANCEL_CURRENT;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            piFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent pi = PendingIntent.getActivity(this, 0, i, piFlags);
+
+        android.app.AlarmManager am =
+                (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
+        if (am != null) {
+            am.set(android.app.AlarmManager.RTC,
+                    System.currentTimeMillis() + 150, pi);
+        }
+
+        finishAffinity();
+        new android.os.Handler(android.os.Looper.getMainLooper())
+                .postDelayed(() -> android.os.Process.killProcess(
+                        android.os.Process.myPid()), 120);
     }
 }
