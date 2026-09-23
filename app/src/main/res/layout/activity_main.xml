@@ -62,24 +62,25 @@
                 android:paddingTop="80dp"
                 android:paddingBottom="60dp">
 
-                <ImageView
-                    android:layout_width="88dp"
-                    android:layout_height="88dp"
-                    android:background="@drawable/brand_mark_bg"
-                    android:padding="18dp"
-                    android:src="@drawable/ic_launcher_foreground"
-                    android:contentDescription="@null"
-                    android:layout_marginBottom="28dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="@color/text"
+                    android:textSize="32sp"
+                    android:letterSpacing="0.12"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="14dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="local file server"
                     android:textColor="@color/text_dim"
-                    android:textSize="13sp"
-                    android:letterSpacing="0.06"
+                    android:textSize="12sp"
+                    android:letterSpacing="0.08"
                     android:textAllCaps="true"
-                    android:layout_marginBottom="40dp" />
+                    android:layout_marginBottom="52dp" />
 
                 <Button
                     android:id="@+id/btnStart"
