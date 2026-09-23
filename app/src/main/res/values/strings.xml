@@ -28,6 +28,7 @@
     <string name="open_settings">Open settings</string>
     <string name="cancel">Cancel</string>
     <string name="quit">Quit</string>
+    <string name="continue_label">Continue</string>
 
     <!-- Notification -->
     <string name="notif_channel_name">Server status</string>

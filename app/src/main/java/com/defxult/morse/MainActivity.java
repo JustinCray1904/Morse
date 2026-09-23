@@ -198,22 +198,28 @@ public class MainActivity extends AppCompatActivity {
     // ---------- state ----------
 
     private void refreshState() {
-        running = ServerController.checkResume(this);
-        if (running) {
-            currentUrl = ServerController.getBoundUrl();
-            if (currentUrl == null) {
-                // Prefs said running and the port is live, but our in-memory
-                // URL is gone (process was recreated). Rebuild it minimally.
-                String ip = NetworkCheck.check().ip;
-                if (ip != null) {
-                    currentUrl = "http://" + ip + ":" + ServerController.getBoundPort() + "/";
+        // checkResume() opens a socket — must not run on the UI thread.
+        bg.execute(() -> {
+            final boolean isRunning = ServerController.checkResume(getApplicationContext());
+            final String url = ServerController.getBoundUrl();
+            final int port = ServerController.getBoundPort();
+            runOnUiThread(() -> {
+                running = isRunning;
+                if (running) {
+                    currentUrl = url;
+                    if (currentUrl == null && port > 0) {
+                        NetworkCheck.Result nr = NetworkCheck.check();
+                        if (nr.ok) {
+                            currentUrl = "http://" + nr.ip + ":" + port + "/";
+                        }
+                    }
+                    showRunning();
+                } else {
+                    currentUrl = null;
+                    showIdle();
                 }
-            }
-            showRunning();
-        } else {
-            currentUrl = null;
-            showIdle();
-        }
+            });
+        });
     }
 
     private void showIdle() {
@@ -311,19 +317,19 @@ public class MainActivity extends AppCompatActivity {
     // ---------- dialogs ----------
 
     private void showNoNetworkDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.no_network_title)
-                .setMessage(R.string.no_network_msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.open_settings, (d, w) -> {
+        UiKit.showDialog(this,
+                getString(R.string.no_network_title),
+                getString(R.string.no_network_msg),
+                getString(R.string.cancel),
+                null,
+                getString(R.string.open_settings),
+                () -> {
                     try {
                         startActivity(NetworkCheck.hotspotSettingsIntent(this));
                     } catch (Exception e) {
                         toast("Cannot open settings");
                     }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .show();
+                });
     }
 
     private void askForStorage() {
