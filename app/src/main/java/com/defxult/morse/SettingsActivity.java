@@ -2,12 +2,13 @@ package com.defxult.morse;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
@@ -42,8 +44,11 @@ public class SettingsActivity extends AppCompatActivity {
     private LinearLayout uploadDestRow;
     private TextView uploadDestValue;
     private ImageButton btnBack;
+    private TextView headerAppearance, headerServer, headerCustomization, headerAbout;
 
     private String selectedAccent;
+    private int currentAccentColor;
+    private boolean suppressThemeListener = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +63,17 @@ public class SettingsActivity extends AppCompatActivity {
         uploadDestRow = findViewById(R.id.uploadDestRow);
         uploadDestValue = findViewById(R.id.uploadDestValue);
         btnBack = findViewById(R.id.btnBack);
+        headerAppearance = findViewById(R.id.headerAppearance);
+        headerServer = findViewById(R.id.headerServer);
+        headerCustomization = findViewById(R.id.headerCustomization);
+        headerAbout = findViewById(R.id.headerAbout);
 
         btnBack.setOnClickListener(v -> {
             commitPort();
             finish();
         });
+
+        currentAccentColor = ThemeManager.accentColor(this);
 
         setupTheme();
         setupAccent();
@@ -71,10 +82,18 @@ public class SettingsActivity extends AppCompatActivity {
         setupMediaButtons();
 
         TextView aboutVersion = findViewById(R.id.aboutVersion);
-        aboutVersion.setText(getString(R.string.about_version, "1.0"));
+        aboutVersion.setText(getBuildVersion());
     }
 
-    // ---------- theme ----------
+    private String getBuildVersion() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception e) {
+            return "1.0";
+        }
+    }
+
+    // ==================== THEME ====================
 
     private void setupTheme() {
         String t = Prefs.getTheme(this);
@@ -82,27 +101,46 @@ public class SettingsActivity extends AppCompatActivity {
         if (Prefs.THEME_LIGHT.equals(t)) rb = findViewById(R.id.themeLight);
         else if (Prefs.THEME_DARK.equals(t)) rb = findViewById(R.id.themeDark);
         else rb = findViewById(R.id.themeSystem);
+
+        suppressThemeListener = true;
         rb.setChecked(true);
+        suppressThemeListener = false;
 
         themeGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if (suppressThemeListener) return;
             String next;
             if (checkedId == R.id.themeLight) next = Prefs.THEME_LIGHT;
             else if (checkedId == R.id.themeDark) next = Prefs.THEME_DARK;
             else next = Prefs.THEME_SYSTEM;
-            Prefs.setTheme(this, next);
-            // AppCompatDelegate triggers recreate on the whole task when the
-            // mode actually changes; nothing else to do here.
+
+            if (next.equals(Prefs.getTheme(SettingsActivity.this))) return;
+
+            Prefs.setTheme(SettingsActivity.this, next);
+            applyNightModeInstant(next);
         });
     }
 
-    // ---------- accent ----------
+    private void applyNightModeInstant(String theme) {
+        int mode;
+        switch (theme) {
+            case Prefs.THEME_LIGHT: mode = AppCompatDelegate.MODE_NIGHT_NO; break;
+            case Prefs.THEME_DARK:  mode = AppCompatDelegate.MODE_NIGHT_YES; break;
+            default:                mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM; break;
+        }
+        AppCompatDelegate.setDefaultNightMode(mode);
+        // Recreate with a fade so the switch feels smooth instead of jarring.
+        recreate();
+        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out);
+    }
+
+    // ==================== ACCENT ====================
 
     private void setupAccent() {
         selectedAccent = Prefs.getAccent(this);
         accentRow.removeAllViews();
         float density = getResources().getDisplayMetrics().density;
-        int size = (int) (44 * density);
-        int margin = (int) (8 * density);
+        int size = (int) (38 * density);
+        int margin = (int) (6 * density);
 
         for (String hex : ThemeManager.ACCENT_PALETTE) {
             ImageView swatch = new ImageView(this);
@@ -119,7 +157,7 @@ public class SettingsActivity extends AppCompatActivity {
             swatch.setOnClickListener(v -> {
                 selectedAccent = hex;
                 Prefs.setAccent(SettingsActivity.this, hex);
-                // Refresh all swatches to move the selection ring.
+                applyAccentInstant();
                 for (int i = 0; i < accentRow.getChildCount(); i++) {
                     View child = accentRow.getChildAt(i);
                     String childHex = (String) child.getContentDescription();
@@ -133,7 +171,43 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // ---------- port ----------
+    private void applyAccentInstant() {
+        currentAccentColor = ThemeManager.accentColor(this);
+
+        // Section headers
+        tintHeader(headerAppearance);
+        tintHeader(headerServer);
+        tintHeader(headerCustomization);
+        tintHeader(headerAbout);
+
+        // Radio buttons
+        tintRadio(findViewById(R.id.themeSystem));
+        tintRadio(findViewById(R.id.themeLight));
+        tintRadio(findViewById(R.id.themeDark));
+
+        // Back button (tint)
+        btnBack.setColorFilter(currentAccentColor);
+    }
+
+    private void tintHeader(TextView tv) {
+        if (tv != null) tv.setTextColor(currentAccentColor);
+    }
+
+    private void tintRadio(RadioButton rb) {
+        if (rb == null) return;
+        try {
+            rb.setButtonTintList(android.content.res.ColorStateList.valueOf(currentAccentColor));
+        } catch (Exception ignored) {}
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reapply accent in case it changed while we were away.
+        applyAccentInstant();
+    }
+
+    // ==================== PORT ====================
 
     private void setupPort() {
         boolean running = Prefs.isRunning(this);
@@ -143,10 +217,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         if (running) {
             portField.setEnabled(false);
+            portField.setTextColor(getResources().getColor(R.color.text_dim));
             portHint.setVisibility(View.VISIBLE);
-            portHint.setText(R.string.port_locked);
         } else {
             portField.setEnabled(true);
+            portField.setTextColor(getResources().getColor(R.color.text_muted));
             portHint.setVisibility(View.GONE);
         }
 
@@ -156,19 +231,19 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        commitPort();
-        super.onPause();
-    }
-
-    @Override
     public void onBackPressed() {
         commitPort();
         super.onBackPressed();
     }
 
+    @Override
+    protected void onPause() {
+        commitPort();
+        super.onPause();
+    }
+
     private void commitPort() {
-        if (!portField.isEnabled()) return;
+        if (portField == null || !portField.isEnabled()) return;
         String raw = portField.getText().toString().trim();
         if (raw.isEmpty()) {
             portField.setText(String.valueOf(Prefs.DEFAULT_PORT));
@@ -185,7 +260,7 @@ public class SettingsActivity extends AppCompatActivity {
         Prefs.setPort(this, p);
     }
 
-    // ---------- upload destination ----------
+    // ==================== UPLOAD DEST ====================
 
     private void setupUploadDest() {
         refreshUploadDestLabel();
@@ -210,7 +285,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // ---------- media picks ----------
+    // ==================== MEDIA ====================
 
     private void setupMediaButtons() {
         findViewById(R.id.btnWallpaper).setOnClickListener(v -> {
@@ -251,7 +326,6 @@ public class SettingsActivity extends AppCompatActivity {
                 ? new String[]{"jpg","jpeg","png","webp","gif","bmp"}
                 : new String[]{"mp3","ogg","m4a","wav","flac","opus","aac"};
 
-        // Delete previous variants.
         for (String e : knownExts) {
             File f = new File(root, basename + "." + e);
             if (f.exists()) f.delete();
@@ -283,7 +357,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // ---------- helpers ----------
+    // ==================== HELPERS ====================
 
     private void toast(String msg) {
         UiKit.toast(this, msg);
