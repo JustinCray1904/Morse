@@ -43,7 +43,28 @@ public final class Prefs {
         if (!THEME_SYSTEM.equals(theme) && !THEME_LIGHT.equals(theme) && !THEME_DARK.equals(theme)) {
             theme = THEME_SYSTEM;
         }
-        sp(ctx).edit().putString(KEY_THEME, theme).apply();
+        sp(ctx).edit()
+                .putString(KEY_THEME, theme)
+                .putInt("theme_gen", getThemeGeneration(ctx) + 1)
+                .apply();
+    }
+
+    public static int getThemeGeneration(Context ctx) {
+        return sp(ctx).getInt("theme_gen", 0);
+    }
+
+    public static int getAccentGeneration(Context ctx) {
+        return sp(ctx).getInt("accent_gen", 0);
+    }
+
+    public static void setAccent(Context ctx, String hex) {
+        if (hex == null || !hex.matches("^#[0-9a-fA-F]{6}$")) {
+            hex = DEFAULT_ACCENT;
+        }
+        sp(ctx).edit()
+                .putString(KEY_ACCENT, hex)
+                .putInt("accent_gen", getAccentGeneration(ctx) + 1)
+                .apply();
     }
 
     // ---------- accent ----------
@@ -52,12 +73,7 @@ public final class Prefs {
         return sp(ctx).getString(KEY_ACCENT, DEFAULT_ACCENT);
     }
 
-    public static void setAccent(Context ctx, String hex) {
-        if (hex == null || !hex.matches("^#[0-9a-fA-F]{6}$")) {
-            hex = DEFAULT_ACCENT;
-        }
-        sp(ctx).edit().putString(KEY_ACCENT, hex).apply();
-    }
+
 
     // ---------- port ----------
 

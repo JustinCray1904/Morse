@@ -253,6 +253,13 @@ public class MainActivity extends AppCompatActivity {
             if (bmp == null) { qrImage.setVisibility(View.GONE); return; }
             qrImage.setImageBitmap(bmp);
             qrImage.setVisibility(View.VISIBLE);
+            qrImage.setAlpha(0f);
+            qrImage.setScaleX(0.85f);
+            qrImage.setScaleY(0.85f);
+            qrImage.animate().alpha(1f).scaleX(1f).scaleY(1f)
+                    .setDuration(420)
+                    .setInterpolator(new android.view.animation.OvershootInterpolator(1.4f))
+                    .start();
         } catch (Exception e) {
             Log.w(TAG, "QR render failed", e);
             qrImage.setVisibility(View.GONE);
