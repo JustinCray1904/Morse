@@ -22,7 +22,7 @@
 
     <!-- Storage permission dialog -->
     <string name="storage_needed_title">File access required</string>
-    <string name="storage_needed_msg">morse needs to read your files to share them over WiFi.\n\nOn the next screen, enable \u201cAllow management of all files\u201d for morse, then come back.</string>
+    <string name="storage_needed_msg">morse needs to read your files to share them over WiFi.\n\nTap Continue and allow access on the next screen.</string>
 
     <!-- Generic -->
     <string name="open_settings">Open settings</string>

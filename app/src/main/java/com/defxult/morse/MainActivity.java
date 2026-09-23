@@ -196,8 +196,14 @@ public class MainActivity extends BaseActivity {
     // ---------- state ----------
 
     private void refreshState() {
+        // Bail if activity is being destroyed — its executor may already be
+        // shut down and any submitted task would be rejected.
+        if (isFinishing() || isDestroyed()) return;
+        if (bg.isShutdown() || bg.isTerminated()) return;
+
         // checkResume() opens a socket — must not run on the UI thread.
-        bg.execute(() -> {
+        try {
+            bg.execute(() -> {
             final boolean isRunning = ServerController.checkResume(getApplicationContext());
             final String url = ServerController.getBoundUrl();
             final int port = ServerController.getBoundPort();
@@ -217,7 +223,10 @@ public class MainActivity extends BaseActivity {
                     showIdle();
                 }
             });
-        });
+            });
+        } catch (java.util.concurrent.RejectedExecutionException ignored) {
+            // Activity went away mid-submit; nothing to do.
+        }
     }
 
     private void showIdle() {
@@ -338,32 +347,18 @@ public class MainActivity extends BaseActivity {
     }
 
     private void askForStorage() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.storage_needed_title)
-                .setMessage(R.string.storage_needed_msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.open_settings, (d, w) -> {
-                    awaitingReturn = true;
-                    Intent i;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                        i.setData(Uri.parse("package:" + getPackageName()));
-                    } else {
-                        i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        i.setData(Uri.parse("package:" + getPackageName()));
-                        ActivityCompat.requestPermissions(this,
-                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                REQ_STORAGE_LEGACY);
-                    }
-                    try {
-                        startActivity(i);
-                    } catch (Exception e) {
-                        startActivity(new Intent(
-                                Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
-                    }
-                })
-                .setNegativeButton(R.string.quit, (d, w) -> finish())
-                .show();
+        UiKit.showDialog(this,
+                getString(R.string.storage_needed_title),
+                getString(R.string.storage_needed_msg),
+                getString(R.string.quit),
+                this::finish,
+                getString(R.string.continue_label),
+                () -> ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        },
+                        REQ_STORAGE_LEGACY));
     }
 
     private void maybeAskNotifications() {

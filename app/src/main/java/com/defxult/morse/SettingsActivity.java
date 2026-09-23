@@ -393,13 +393,18 @@ public class SettingsActivity extends BaseActivity {
      * new theme via BaseActivity.attachBaseContext.
      */
     private void restartAppFully() {
-        Intent i = new Intent(this, SplashActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        int piFlags = PendingIntent.FLAG_CANCEL_CURRENT;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            piFlags |= PendingIntent.FLAG_IMMUTABLE;
+        // Launch the launcher intent fresh, clearing every activity on top.
+        // No killProcess — Android handles the restart itself.
+        android.content.Intent i = getPackageManager()
+                .getLaunchIntentForPackage(getPackageName());
+        if (i != null) {
+            i.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    | android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
         }
+        finishAffinity();
+    }
         PendingIntent pi = PendingIntent.getActivity(this, 0, i, piFlags);
 
         android.app.AlarmManager am =
