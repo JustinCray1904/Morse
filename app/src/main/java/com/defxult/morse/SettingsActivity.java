@@ -3,15 +3,12 @@ package com.defxult.morse;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -49,11 +45,9 @@ public class SettingsActivity extends BaseActivity {
     private String selectedAccent;
     private int currentAccentColor;
     private boolean suppressThemeListener = false;
-    private String mThemeAtCreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mThemeAtCreate = Prefs.getTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -114,9 +108,9 @@ public class SettingsActivity extends BaseActivity {
             else if (checkedId == R.id.themeDark) next = Prefs.THEME_DARK;
             else next = Prefs.THEME_SYSTEM;
 
-            if (next.equals(Prefs.getTheme(SettingsActivity.this))) return;
+            if (next.equals(Prefs.getTheme(this))) return;
 
-            Prefs.setTheme(SettingsActivity.this, next);
+            Prefs.setTheme(this, next);
 
             int mode;
             if (Prefs.THEME_LIGHT.equals(next)) mode = AppCompatDelegate.MODE_NIGHT_NO;
@@ -128,24 +122,19 @@ public class SettingsActivity extends BaseActivity {
         });
     }
 
-    private void applyNightModeInstant(String theme) {
-        int mode;
-        switch (theme) {
-            case Prefs.THEME_LIGHT: mode = AppCompatDelegate.MODE_NIGHT_NO; break;
-            case Prefs.THEME_DARK:  mode = AppCompatDelegate.MODE_NIGHT_YES; break;
-            default:                mode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM; break;
+    private void restartAppFully() {
+        try {
+            Intent launch = getPackageManager().getLaunchIntentForPackage(getPackageName());
+            if (launch != null) {
+                launch.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(launch);
+            }
+            finishAffinity();
+        } catch (Exception e) {
+            Log.e(TAG, "restart failed", e);
         }
-        AppCompatDelegate.setDefaultNightMode(mode);
-        recreateWithFade();
-    }
-
-    private int seenThemeGenInResume = -1;
-
-    private void recreateWithFade() {
-        Intent i = getIntent();
-        finish();
-        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out);
-        startActivity(i);
     }
 
     // ==================== ACCENT ====================
@@ -189,19 +178,16 @@ public class SettingsActivity extends BaseActivity {
     private void applyAccentInstant() {
         currentAccentColor = ThemeManager.accentColor(this);
 
-        // Section headers
         tintHeader(headerAppearance);
         tintHeader(headerServer);
         tintHeader(headerCustomization);
         tintHeader(headerAbout);
 
-        // Radio buttons
         tintRadio(findViewById(R.id.themeSystem));
         tintRadio(findViewById(R.id.themeLight));
         tintRadio(findViewById(R.id.themeDark));
 
-        // Back button (tint)
-        btnBack.setColorFilter(currentAccentColor);
+        if (btnBack != null) btnBack.setColorFilter(currentAccentColor);
     }
 
     private void tintHeader(TextView tv) {
@@ -218,16 +204,6 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String now = Prefs.getTheme(this);
-        if (mThemeAtCreate == null) {
-            mThemeAtCreate = now;
-        } else if (!now.equals(mThemeAtCreate)) {
-            mThemeAtCreate = now;
-            recreate();
-            overridePendingTransition(R.anim.activity_fade_in,
-                                      R.anim.activity_fade_out);
-            return;
-        }
         applyAccentInstant();
     }
 
@@ -385,38 +361,5 @@ public class SettingsActivity extends BaseActivity {
 
     private void toast(String msg) {
         UiKit.toast(this, msg);
-    }
-
-    /**
-     * Restart the entire app. Guarantees every activity — including ones
-     * sitting in the back stack — rebuilds from scratch and picks up the
-     * new theme via BaseActivity.attachBaseContext.
-     */
-    private void restartAppFully() {
-        // Launch the launcher intent fresh, clearing every activity on top.
-        // No killProcess — Android handles the restart itself.
-        android.content.Intent i = getPackageManager()
-                .getLaunchIntentForPackage(getPackageName());
-        if (i != null) {
-            i.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    | android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-                    | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(i);
-        }
-        finishAffinity();
-    }
-        PendingIntent pi = PendingIntent.getActivity(this, 0, i, piFlags);
-
-        android.app.AlarmManager am =
-                (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
-        if (am != null) {
-            am.set(android.app.AlarmManager.RTC,
-                    System.currentTimeMillis() + 150, pi);
-        }
-
-        finishAffinity();
-        new android.os.Handler(android.os.Looper.getMainLooper())
-                .postDelayed(() -> android.os.Process.killProcess(
-                        android.os.Process.myPid()), 120);
     }
 }
