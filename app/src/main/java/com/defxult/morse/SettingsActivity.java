@@ -21,7 +21,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.chaquo.python.PyObject;
@@ -31,7 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private static final String TAG = "morse";
     private static final int REQ_WALLPAPER = 2001;
@@ -52,7 +51,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ThemeManager.applyNightMode(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -115,7 +113,12 @@ public class SettingsActivity extends AppCompatActivity {
 
             if (next.equals(Prefs.getTheme(SettingsActivity.this))) return;
 
+            // Prefs.setTheme bumps a generation counter.
             Prefs.setTheme(SettingsActivity.this, next);
+
+            // Give the delegate a hint, then rebuild ourselves with fade.
+            // BaseActivity.attachBaseContext will read the new Prefs value
+            // and inflate with the correct Configuration.
             applyNightModeInstant(next);
         });
     }
@@ -130,6 +133,8 @@ public class SettingsActivity extends AppCompatActivity {
         AppCompatDelegate.setDefaultNightMode(mode);
         recreateWithFade();
     }
+
+    private int seenThemeGenInResume = -1;
 
     private void recreateWithFade() {
         Intent i = getIntent();
@@ -208,7 +213,13 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Reapply accent in case it changed while we were away.
+        if (seenThemeGenInResume < 0) {
+            seenThemeGenInResume = Prefs.getThemeGeneration(this);
+        } else if (Prefs.getThemeGeneration(this) != seenThemeGenInResume) {
+            seenThemeGenInResume = Prefs.getThemeGeneration(this);
+            recreateWithFade();
+            return;
+        }
         applyAccentInstant();
     }
 

@@ -11,9 +11,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 
-import androidx.appcompat.app.AppCompatActivity;
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BaseActivity {
 
     private static final long REVEAL_MS = 460;
     private static final long BOUNCE_MS = 600;
@@ -22,7 +21,6 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ThemeManager.applyNightMode(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
@@ -54,6 +52,14 @@ public class SplashActivity extends AppCompatActivity {
                         .scaleX(1f).scaleY(1f)
                         .setDuration(BOUNCE_MS)
                         .setInterpolator(new OvershootInterpolator(1.5f))
+                        .withEndAction(() -> {
+                            // soft float while we hold
+                            mark.animate()
+                                    .translationY(-10f)
+                                    .setDuration(HOLD_MS)
+                                    .setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator())
+                                    .start();
+                        })
                         .start();
             }, REVEAL_MS - 100);
 

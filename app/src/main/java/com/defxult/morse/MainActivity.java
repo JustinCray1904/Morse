@@ -23,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -34,7 +33,7 @@ import com.chaquo.python.android.AndroidPlatform;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "morse";
     private static final int REQ_NOTIF = 1001;
@@ -55,8 +54,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
-            ThemeManager.applyNightMode(this);
-            super.onCreate(savedInstanceState);
+                super.onCreate(savedInstanceState);
         } catch (Throwable t) {
             crash("onCreate early", t);
             return;
